@@ -154,7 +154,6 @@ class model():
         # loss部分
         # self.out = tf.nn.sigmoid(self.out)
         self.out = tf.nn.sigmoid(self.out)
-
         # self.loss = -tf.reduce_mean(
         #     self.label * tf.log(self.out + 1e-24) + (1 - self.label) * tf.log(1 - self.out + 1e-24))
 
@@ -173,7 +172,7 @@ class model():
         for i in range(len(self.deep_layers)):
             self.loss += tf.contrib.layers.l2_regularizer(self.l2_reg_rate)(self.weight["layer_%d" % i])
 
-        opt = tf.train.AdamOptimizer(self.learning_rate, beta1=0.5)
+        opt = tf.train.AdamOptimizer(self.learning_rate, beta1=0.9, beta2=0.999, epsilon=1e-8)
         grads, variables = zip(*opt.compute_gradients(self.loss))
         grads, global_norm = tf.clip_by_global_norm(grads, 5)
         train_op = opt.apply_gradients(zip(grads, variables))
@@ -243,6 +242,7 @@ if __name__ == '__main__':
                     if j % 10 == 0:
                         print('the times of training is %d, and the loss is %s ,and auc = %s' % (j, loss, auc))
                         Model.save(sess, args.checkpoint_dir)
+                        # 准确率最高到0.940429688
         else:
             Model.restore(sess, args.checkpoint_dir)
             for j in range(0, cnt):

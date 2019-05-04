@@ -2,3 +2,6 @@
 /criteo_data/
 /data/
 /DeepFM/logs/
+/.gitignore
+/temp.py
+/.idea
