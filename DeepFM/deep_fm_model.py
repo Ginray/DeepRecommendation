@@ -26,6 +26,10 @@ class Args():
 
 class model():
     def __init__(self, args):
+        self.feat_index = tf.placeholder(tf.int32, shape=[None, None], name='feature_index')
+        self.feat_value = tf.placeholder(tf.float32, shape=[None, None], name='feature_value')
+        self.label = tf.placeholder(tf.float32, shape=[None, None], name='label')
+
         self.feature_sizes = args.feature_sizes
         self.field_size = args.field_size
         self.embedding_size = args.embedding_size
@@ -41,10 +45,6 @@ class model():
         self.build_model()
 
     def build_model(self):
-        self.feat_index = tf.placeholder(tf.int32, shape=[None, None], name='feature_index')
-        self.feat_value = tf.placeholder(tf.float32, shape=[None, None], name='feature_value')
-        self.label = tf.placeholder(tf.float32, shape=[None, None], name='label')
-
         # One-hot编码后的输入层与Dense embeddings层的权值定义，即DNN的输入embedding。注：Dense embeddings层的神经元个数由field_size和决定
         self.weight['feature_weight'] = tf.Variable(
             tf.random_normal([self.feature_sizes, self.embedding_size], 0.0, 0.01),
