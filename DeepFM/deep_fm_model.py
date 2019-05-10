@@ -9,7 +9,7 @@ from DeepFM.build_data import load_data
 class Args():
     feature_sizes = 1
     field_size = 1
-    embedding_size = 512
+    embedding_size = 8
     deep_layers = [512, 256, 128]
     epoch = 3
     batch_size = 1024
@@ -158,10 +158,10 @@ class model():
         #     self.label * tf.log(self.out + 1e-24) + (1 - self.label) * tf.log(1 - self.out + 1e-24))
 
         correct_prediction = tf.equal(tf.round(self.out), self.label)
-        self.auc = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+        self.acc = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-        self.auc = tf.Print(self.auc, [self.auc])
-        tf.summary.scalar('acc', self.auc)
+        self.acc = tf.Print(self.acc, [self.acc])
+        tf.summary.scalar('acc', self.acc)
         self.loss = -1 * tf.reduce_mean(
             self.label * tf.log(tf.clip_by_value(self.out, 1e-10, 1.0 - (1e-10))) + (1 - self.label) * tf.log(
                 (1 - tf.clip_by_value(self.out, 1e-10, 1.0 - (1e-10)))))
@@ -180,14 +180,14 @@ class model():
         self.train_op = train_op
 
     def train(self, sess, feat_index, feat_value, label, index):
-        loss, step, auc, result = sess.run([self.loss, self.train_op, self.auc, merged], feed_dict={
+        loss, step, acc, result = sess.run([self.loss, self.train_op, self.acc, merged], feed_dict={
             self.feat_index: feat_index,
             self.feat_value: feat_value,
             self.label: label
         })
         writer.add_summary(result, index)  # 将日志数据写入文件
 
-        return loss, step, auc
+        return loss, step, acc
 
     def predict(self, sess, feat_index, feat_value):
         result = sess.run([self.out], feed_dict={
@@ -238,9 +238,9 @@ if __name__ == '__main__':
                 print('epoch %s:' % i)
                 for j in range(0, cnt):
                     X_index, X_value, y = get_batch(data['xi'], data['xv'], data['y_train'], args.batch_size, j)
-                    loss, step, auc = Model.train(sess, X_index, X_value, y, i * cnt + j)
+                    loss, step, acc = Model.train(sess, X_index, X_value, y, i * cnt + j)
                     if j % 10 == 0:
-                        print('the times of training is %d, and the loss is %s ,and auc = %s' % (j, loss, auc))
+                        print('the times of training is %d, and the loss is %s ,and acc = %s' % (j, loss, acc))
                         Model.save(sess, args.checkpoint_dir)
                         # 准确率最高到0.940429688
         else:
